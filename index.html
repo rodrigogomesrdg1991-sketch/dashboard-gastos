@@ -468,11 +468,10 @@
 
   <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO DO SUPABASE
-    // (Substitua 'https://hpcrykdbxhonsrzgmnbr.supabase.co/rest/v1/' e 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwY3J5a2RieGhvbnNyemdtbmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODg2MDcsImV4cCI6MjEwNjE2NDYwN30.Eryo931h8JkIQV0uG4TLOpUcTKjNQzDAcbUb2WGT15Y' pelas chaves do seu projeto)
+    // 1. CONFIGURAÇÃO DO SUPABASE (CORRIGIDA)
     // ==========================================
-    const SUPABASE_URL = 'https://hpcrykdbxhonsrzgmnbr.supabase.co/rest/v1/';
-    const SUPABASE_KEY = '583357e8-a049-4c41-b490-1d28be0c67a1';
+    const SUPABASE_URL = 'https://hpcrykdbxhonsrzgmnbr.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwY3J5a2RieGhvbnNyemdtbmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODg2MDcsImV4cCI6MjEwNjE2NDYwN30.Eryo931h8JkIQV0uG4TLOpUcTKjNQzDAcbUb2WGT15Y';
 
     let supabaseClient = null;
 
@@ -481,7 +480,7 @@
         SUPABASE_URL && 
         SUPABASE_URL !== 'https://hpcrykdbxhonsrzgmnbr.supabase.co/rest/v1/' && 
         SUPABASE_KEY && 
-        SUPABASE_KEY !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwY3J5a2RieGhvbnNyemdtbmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODg2MDcsImV4cCI6MjEwNjE2NDYwN30.Eryo931h8JkIQV0uG4TLOpUcTKjNQzDAcbUb2WGT15Y'
+        SUPABASE_KEY !== '583357e8-a049-4c41-b490-1d28be0c67a1'
       );
     }
 
@@ -502,7 +501,6 @@
     const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
     const byId = id => document.getElementById(id);
 
-    // Estado inicial 100% LIMPO
     let state = { renda: 0, itens: [] };
     let currentUser = null;
     let dbCards = [];
@@ -596,7 +594,6 @@
       const client = getSupabaseClient();
 
       if (!client) {
-        // Fallback local se não colocou as chaves do Supabase ainda
         showToast('Acesso efetuado em Modo Local Temporário.');
         handleUserAuthenticated({ id: 'local-demo-user', email: email });
         return;
@@ -641,14 +638,12 @@
     async function loadDashboardData() {
       const client = getSupabaseClient();
       
-      // Se estiver em modo local/demo sem chave, renderiza a tela zerada
       if (!client || !currentUser) {
         render();
         return;
       }
 
       try {
-        // Carregar Renda do Perfil
         const { data: profile } = await client
           .from('profiles')
           .select('monthly_income')
@@ -657,7 +652,6 @@
         
         state.renda = profile && profile.monthly_income ? parseFloat(profile.monthly_income) : 0;
 
-        // Carregar Cartões do Usuário
         let { data: cards } = await client
           .from('cards')
           .select('*')
@@ -676,7 +670,6 @@
 
         dbCards = cards;
 
-        // Carregar Despesas do Usuário
         const { data: expenses } = await client
           .from('expenses')
           .select('*, cards(name)')
@@ -787,7 +780,6 @@
       const client = getSupabaseClient();
 
       if (!client || !currentUser) {
-        // Fallback local se o Supabase ainda não foi configurado
         state.itens.unshift({
           id: String(Date.now()),
           desc: desc || 'Sem descrição',
@@ -799,7 +791,7 @@
         byId('cat').value = '';
         byId('valor').value = '';
         render();
-        showToast('Despesa salva localmente (Cole as chaves do Supabase para salvar na nuvem).');
+        showToast('Despesa salva localmente.');
         return;
       }
 
@@ -905,9 +897,8 @@
 
     initAuth();
   </script>
-const SUPABASE_URL = 'hpcrykdbxhonsrzgmnbr';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwY3J5a2RieGhvbnNyemdtbmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODg2MDcsImV4cCI6MjEwNjE2NDYwN30.Eryo931h8JkIQV0uG4TLOpUcTKjNQzDAcbUb2WGT15Y';
-<!-- Brasão Domingues Gomes no canto inferior direito -->
-<img src="brasao.png" alt="Brasão Domingues Gomes" style="position: fixed; bottom: 20px; right: 20px; width: 75px; height: 75px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
+
+  <!-- Brasão Domingues Gomes no canto inferior direito -->
+  <img src="brasao.png" alt="Brasão Domingues Gomes" style="position: fixed; bottom: 20px; right: 20px; width: 75px; height: 75px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
 </body>
 </html>
