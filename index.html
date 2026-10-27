@@ -903,6 +903,14 @@
     byId('export').addEventListener('click', exportCSV);
 
     initAuth();
+// Registo do Service Worker para permitir a instalação real no Android
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('Service Worker registado com sucesso!'))
+        .catch(err => console.log('Falha ao registar o Service Worker:', err));
+    });
+  }
   </script>
 
   <!-- Brasão Domingues Gomes no canto inferior direito -->
