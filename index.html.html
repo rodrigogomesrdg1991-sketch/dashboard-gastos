@@ -44,6 +44,17 @@
       line-height: 1.5;
     }
 
+    .cloud-status-banner {
+      background: rgba(245, 158, 11, 0.15);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+      padding: 8px 16px;
+      font-size: 13px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
     header {
       padding: 24px 20px;
       max-width: 1200px;
@@ -234,10 +245,10 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
-      padding: 20px;
       opacity: 0;
       pointer-events: none;
       transition: var(--transition);
+      padding: 20px;
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-card {
@@ -318,13 +329,17 @@
 </head>
 <body>
 
+  <div id="demo-banner" class="cloud-status-banner">
+    ⚠️ <strong>Atenção:</strong> Chaves do Supabase não configuradas no código. O site está rodando em <em>Modo Local Temporário</em> e os dados não serão sincronizados em outros aparelhos.
+  </div>
+
   <header>
     <div>
       <div class="brand-title">Dashboard de Gastos</div>
-      <div class="brand-subtitle">Gestão financeira multi-emissor com integração em nuvem</div>
+      <div class="brand-subtitle">Gestão financeira multi-emissor em nuvem</div>
     </div>
     <div id="auth-status" class="user-profile" style="display: none;">
-      <span class="user-email" id="user-email-display">digo@email.com</span>
+      <span class="user-email" id="user-email-display">-</span>
       <button class="btn sm bad" id="btn-logout">Sair</button>
     </div>
   </header>
@@ -359,13 +374,13 @@
         <input type="number" id="renda" placeholder="Ex: 2500.00" min="0" step="0.01" inputmode="decimal">
         <button class="btn primary" id="salvar-renda">Salvar</button>
       </div>
-      <div class="hint">Sincronizado automaticamente no Supabase.</div>
+      <div class="hint">Salva automaticamente no seu perfil do Supabase.</div>
     </div>
 
     <div class="card span-4 compact">
       <div class="label">Saldo do Mês (Renda - Gastos)</div>
       <div class="value" id="saldo">€ 0,00</div>
-      <div class="hint" id="saldo-hint">Defina a renda para ver o saldo.</div>
+      <div class="hint" id="saldo-hint">Defina sua renda para ver o saldo final.</div>
     </div>
 
     <div class="card span-12">
@@ -427,7 +442,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h2 id="modal-title">Acessar Conta</h2>
-        <p id="modal-desc">Entre com seus dados de teste para acessar o dashboard.</p>
+        <p id="modal-desc">Insira seus dados para acessar suas finanças em nuvem.</p>
       </div>
 
       <div class="auth-tabs">
@@ -438,11 +453,11 @@
       <form class="modal-form" id="auth-form">
         <div>
           <label class="form-group" style="font-size: 12px; color: var(--muted);">E-mail</label>
-          <input type="email" id="auth-email" value="digo@email.com" placeholder="seu@email.com" required style="margin-top: 4px;">
+          <input type="email" id="auth-email" placeholder="seu@email.com" required style="margin-top: 4px;">
         </div>
         <div>
           <label class="form-group" style="font-size: 12px; color: var(--muted);">Senha</label>
-          <input type="password" id="auth-password" value="123456" placeholder="Mínimo 6 caracteres" required minlength="6" style="margin-top: 4px;">
+          <input type="password" id="auth-password" placeholder="Sua senha secreta" required minlength="6" style="margin-top: 4px;">
         </div>
         <button type="submit" class="btn primary" id="btn-auth-submit" style="width: 100%; margin-top: 8px;">Entrar no Dashboard</button>
       </form>
@@ -453,23 +468,33 @@
 
   <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO E INICIALIZAÇÃO SEGURA
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // (Substitua 'https://hpcrykdbxhonsrzgmnbr.supabase.co/rest/v1/' e 'sb_publishable_ylG0Cnm5eCP7LuG63_RAJQ_xdmzli-6' pelas chaves do seu projeto)
     // ==========================================
-    const SUPABASE_URL = 'SUA_URL_AQUI';
-    const SUPABASE_KEY = 'SUA_ANON_KEY_AQUI';
+    const SUPABASE_URL = 'https://hpcrykdbxhonsrzgmnbr.supabase.co/rest/v1/';
+    const SUPABASE_KEY = 'sb_publishable_ylG0Cnm5eCP7LuG63_RAJQ_xdmzli-6';
 
     let supabaseClient = null;
+
+    function isSupabaseConfigured() {
+      return (
+        SUPABASE_URL && 
+        SUPABASE_URL !== 'https://hpcrykdbxhonsrzgmnbr.supabase.co/rest/v1/' && 
+        SUPABASE_KEY && 
+        SUPABASE_KEY !== 'sb_publishable_ylG0Cnm5eCP7LuG63_RAJQ_xdmzli-6'
+      );
+    }
 
     function getSupabaseClient() {
       if (supabaseClient) return supabaseClient;
       if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
-      if (!SUPABASE_URL || SUPABASE_URL === 'SUA_URL_AQUI' || !SUPABASE_KEY || SUPABASE_KEY === 'SUA_ANON_KEY_AQUI') return null;
+      if (!isSupabaseConfigured()) return null;
 
       try {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         return supabaseClient;
       } catch (err) {
-        console.error('Erro na inicialização do Supabase:', err);
+        console.error('Erro ao conectar com Supabase:', err);
         return null;
       }
     }
@@ -477,7 +502,8 @@
     const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
     const byId = id => document.getElementById(id);
 
-    let state = { renda: 2500, itens: [] };
+    // Estado inicial 100% LIMPO
+    let state = { renda: 0, itens: [] };
     let currentUser = null;
     let dbCards = [];
     let authMode = 'login';
@@ -497,8 +523,12 @@
     // ==========================================
     async function initAuth() {
       const client = getSupabaseClient();
+      
+      if (!isSupabaseConfigured()) {
+        byId('demo-banner').style.display = 'block';
+      }
+
       if (!client) {
-        showToast('Modo Demo Ativo. Para conectar ao banco, cole as chaves do Supabase no HTML.', 'info');
         showAuthModal(true);
         return;
       }
@@ -515,8 +545,7 @@
           if (event === 'SIGNED_IN' && session) {
             handleUserAuthenticated(session.user);
           } else if (event === 'SIGNED_OUT') {
-            currentUser = null;
-            byId('auth-status').style.display = 'none';
+            resetState();
             showAuthModal(true);
           }
         });
@@ -526,13 +555,22 @@
       }
     }
 
+    function resetState() {
+      currentUser = null;
+      dbCards = [];
+      state = { renda: 0, itens: [] };
+      byId('auth-status').style.display = 'none';
+      render();
+    }
+
     function showAuthModal(show) {
       byId('auth-modal').classList.toggle('active', show);
     }
 
     function handleUserAuthenticated(user) {
+      resetState();
       currentUser = user;
-      byId('user-email-display').textContent = user.email || 'digo@email.com';
+      byId('user-email-display').textContent = user.email || 'Usuário Sem E-mail';
       byId('auth-status').style.display = 'flex';
       showAuthModal(false);
       loadDashboardData();
@@ -557,10 +595,10 @@
 
       const client = getSupabaseClient();
 
-      // MODO DEMO: Se não houver Supabase configurado ainda, entra direto para o usuário testar!
       if (!client) {
-        showToast('Acesso concedido (Modo Demo de Teste)');
-        handleUserAuthenticated({ id: 'demo-user-123', email: email });
+        // Fallback local se não colocou as chaves do Supabase ainda
+        showToast('Acesso efetuado em Modo Local Temporário.');
+        handleUserAuthenticated({ id: 'local-demo-user', email: email });
         return;
       }
 
@@ -570,22 +608,15 @@
       if (authMode === 'login') {
         const { data, error } = await client.auth.signInWithPassword({ email, password });
         if (error) {
-          // Se o login falhar, tenta cadastrar automaticamente para facilitar o teste
-          const { data: signUpData, error: signUpError } = await client.auth.signUp({ email, password });
-          if (signUpError) {
-            showToast('Erro ao acessar: ' + error.message, 'error');
-          } else {
-            showToast('Conta criada e logada com sucesso!');
-            if (signUpData.session) handleUserAuthenticated(signUpData.user);
-          }
+          showToast('Erro ao entrar: ' + error.message, 'error');
         } else {
-          showToast('Login realizado com sucesso!');
+          showToast('Sessão iniciada!');
           if (data.session) handleUserAuthenticated(data.user);
         }
       } else {
         const { data, error } = await client.auth.signUp({ email, password });
         if (error) {
-          showToast('Erro no cadastro: ' + error.message, 'error');
+          showToast('Erro ao cadastrar: ' + error.message, 'error');
         } else {
           showToast('Conta criada com sucesso!');
           if (data.session) handleUserAuthenticated(data.user);
@@ -599,41 +630,34 @@
     byId('btn-logout').addEventListener('click', async () => {
       const client = getSupabaseClient();
       if (client) await client.auth.signOut();
-      currentUser = null;
-      byId('auth-status').style.display = 'none';
+      resetState();
       showAuthModal(true);
       showToast('Sessão encerrada.');
     });
 
     // ==========================================
-    // 3. CARREGAMENTO DE DADOS
+    // 3. CARREGAMENTO DOS DADOS DO BANCO
     // ==========================================
     async function loadDashboardData() {
       const client = getSupabaseClient();
+      
+      // Se estiver em modo local/demo sem chave, renderiza a tela zerada
       if (!client || !currentUser) {
-        // Dados demonstrativos caso esteja em modo local/demo
-        if (state.itens.length === 0) {
-          state.itens = [
-            { id: '1', desc: 'Supermercado', cat: 'Alimentação', valor: 85.50, cartao: 'BBVA' },
-            { id: '2', desc: 'Transferência Wise', cat: 'Serviços', valor: 120.00, cartao: 'Wise' }
-          ];
-        }
         render();
         return;
       }
 
       try {
-        // Renda
+        // Carregar Renda do Perfil
         const { data: profile } = await client
           .from('profiles')
           .select('monthly_income')
           .eq('id', currentUser.id)
           .maybeSingle();
         
-        if (profile) state.renda = profile.monthly_income || 0;
-        byId('renda').value = state.renda || '';
+        state.renda = profile && profile.monthly_income ? parseFloat(profile.monthly_income) : 0;
 
-        // Cartões
+        // Carregar Cartões do Usuário
         let { data: cards } = await client
           .from('cards')
           .select('*')
@@ -652,23 +676,24 @@
 
         dbCards = cards;
 
-        // Despesas
+        // Carregar Despesas do Usuário
         const { data: expenses } = await client
           .from('expenses')
           .select('*, cards(name)')
-          .eq('user_id', currentUser.id);
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
 
         state.itens = (expenses || []).map(e => ({
           id: e.id,
           desc: e.description,
           cat: e.category,
           valor: parseFloat(e.amount),
-          cartao: e.cards ? e.cards.name : 'Desconhecido'
+          cartao: e.cards ? e.cards.name : 'Outro'
         }));
 
         render();
       } catch (err) {
-        console.error(err);
+        console.error('Erro ao carregar dados:', err);
       }
     }
 
@@ -730,7 +755,7 @@
       byId('tot-geral').textContent = fmt.format(total);
       byId('qtd-itens').textContent = `${state.itens.length} lançamento${state.itens.length === 1 ? '' : 's'} registrado${state.itens.length === 1 ? '' : 's'}`;
 
-      byId('renda').value = state.renda || '';
+      byId('renda').value = state.renda > 0 ? state.renda : '';
       const renda = Number(state.renda) || 0;
       const saldo = renda - total;
       
@@ -739,13 +764,13 @@
       
       byId('saldo-hint').textContent = renda > 0 
         ? `Renda: ${fmt.format(renda)} − Gastos: ${fmt.format(total)}` 
-        : `Defina a renda para calcular o saldo final.`;
+        : `Defina sua renda para ver o saldo final.`;
 
       saldoEl.className = 'value ' + (saldo > 0 ? 'kpi-ok' : saldo === 0 ? 'kpi-warn' : 'kpi-bad');
     }
 
     // ==========================================
-    // 5. AÇÕES CRUD
+    // 5. AÇÕES CRUD (SALVAR E EXCLUIR)
     // ==========================================
     async function addItem() {
       const desc = byId('desc').value.trim();
@@ -760,9 +785,10 @@
       }
 
       const client = getSupabaseClient();
+
       if (!client || !currentUser) {
-        // Fallback local se não tiver banco conectado ainda
-        state.itens.push({
+        // Fallback local se o Supabase ainda não foi configurado
+        state.itens.unshift({
           id: String(Date.now()),
           desc: desc || 'Sem descrição',
           cat: cat || 'Geral',
@@ -773,16 +799,11 @@
         byId('cat').value = '';
         byId('valor').value = '';
         render();
-        showToast('Despesa adicionada!');
+        showToast('Despesa salva localmente (Cole as chaves do Supabase para salvar na nuvem).');
         return;
       }
 
       const cardObj = dbCards.find(c => c.name === cartaoNome);
-      if (!cardObj) {
-        showToast('Erro com o cartão selecionado.', 'error');
-        return;
-      }
-
       const addBtn = byId('add');
       addBtn.disabled = true;
 
@@ -790,7 +811,7 @@
         .from('expenses')
         .insert([{
           user_id: currentUser.id,
-          card_id: cardObj.id,
+          card_id: cardObj ? cardObj.id : null,
           description: desc || 'Sem descrição',
           category: cat || 'Geral',
           amount: valor
@@ -800,9 +821,9 @@
       addBtn.disabled = false;
 
       if (error) {
-        showToast('Erro ao salvar no banco: ' + error.message, 'error');
+        showToast('Erro ao salvar no Supabase: ' + error.message, 'error');
       } else if (data && data.length > 0) {
-        state.itens.push({
+        state.itens.unshift({
           id: data[0].id,
           desc: desc || 'Sem descrição',
           cat: cat || 'Geral',
@@ -815,7 +836,7 @@
         byId('valor').value = '';
         
         render();
-        showToast('Despesa salva com sucesso!');
+        showToast('Despesa salva na nuvem com sucesso!');
       }
     }
 
@@ -875,7 +896,7 @@
       a.download = `gastos-mensais-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Relatório CSV gerado!');
+      showToast('Relatório CSV baixado!');
     }
 
     byId('add').addEventListener('click', addItem);
@@ -884,5 +905,7 @@
 
     initAuth();
   </script>
+<!-- Brasão Domingues Gomes no canto inferior direito -->
+<img src="brasao.png" alt="Brasão Domingues Gomes" style="position: fixed; bottom: 20px; right: 20px; width: 75px; height: 75px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
 </body>
 </html>
