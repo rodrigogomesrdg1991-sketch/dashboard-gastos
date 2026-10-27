@@ -1,0 +1,16 @@
+{
+  "short_name": "Gastos",
+  "name": "Dashboard de Gastos Mensais",
+  "icons": [
+    {
+      "src": "brasao.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "display": "standalone",
+  "orientation": "portrait"
+}
