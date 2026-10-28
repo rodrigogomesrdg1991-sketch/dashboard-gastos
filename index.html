@@ -50,7 +50,7 @@
       color: var(--text);
       min-height: 100vh;
       line-height: 1.5;
-      padding-bottom: 90px; /* Espaço para o brasão fixo */
+      padding-bottom: 90px;
     }
 
     .cloud-status-banner {
@@ -153,7 +153,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       color: var(--text);
-      font-size: 15px; /* Evita zoom automático no iOS */
+      font-size: 15px;
       font-family: inherit;
       outline: none;
       transition: var(--transition);
@@ -190,7 +190,7 @@
     .form-grid {
       display: grid;
       gap: 12px;
-      grid-template-columns: 2fr 1.2fr 1fr 1fr auto;
+      grid-template-columns: 1.2fr 2fr 1.2fr 1fr 1fr auto;
       align-items: end;
       margin-top: 12px;
       padding-bottom: 20px;
@@ -224,6 +224,8 @@
       color: var(--muted);
       font-weight: 500;
     }
+    .tag-income { border-color: rgba(34, 197, 94, 0.3); background: var(--ok-glow); color: #86efac; }
+    .tag-expense { border-color: rgba(239, 68, 68, 0.3); background: var(--bad-glow); color: #fca5a5; }
 
     .kpi-ok { color: var(--ok); text-shadow: 0 0 12px var(--ok-glow); }
     .kpi-warn { color: var(--warn); }
@@ -321,7 +323,7 @@
     }
 
     /* ==========================================
-       MEDIA QUERIES (OTIMIZAÇÃO EXCLUSIVA MOBILE)
+       MEDIA QUERIES (OTIMIZAÇÃO MOBILE)
        ========================================== */
     @media (max-width: 768px) {
       header {
@@ -337,12 +339,10 @@
         padding: 12px;
         gap: 12px;
       }
-      /* Cartões de resumo em 2 colunas no telemóvel */
       .span-3 { grid-column: span 6; }
       .span-4 { grid-column: span 12; }
       .span-12 { grid-column: span 12; }
 
-      /* Formulário na vertical */
       .form-grid {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -355,7 +355,6 @@
         width: 100%;
       }
 
-      /* Tabela adaptada para lista de Cards no Mobile */
       .table-container table, 
       .table-container thead, 
       .table-container tbody, 
@@ -365,7 +364,7 @@
         display: block; 
       }
 
-      .table-container thead { display: none; } /* Oculta o cabeçalho no mobile */
+      .table-container thead { display: none; }
 
       .table-container tr {
         background: rgba(255, 255, 255, 0.02);
@@ -382,37 +381,35 @@
         text-align: left !important;
       }
 
-      .table-container td:nth-child(1) { /* Descrição */
+      .table-container td:nth-child(1) {
         font-weight: 700;
         font-size: 15px;
         color: var(--text);
         padding-right: 70px;
       }
 
-      .table-container td:nth-child(2) { /* Categoria */
+      .table-container td:nth-child(2) {
         display: inline-block;
         margin-top: 4px;
       }
 
-      .table-container td:nth-child(3) { /* Valor */
+      .table-container td:nth-child(3) {
         font-size: 16px;
         font-weight: 800;
-        color: var(--accent);
         margin-top: 6px;
       }
 
-      .table-container td:nth-child(4) { /* Cartão */
+      .table-container td:nth-child(4) {
         font-size: 12px;
         color: var(--muted);
       }
 
-      .table-container td:nth-child(5) { /* Botão Excluir */
+      .table-container td:nth-child(5) {
         position: absolute;
         top: 12px;
         right: 12px;
       }
 
-      /* Ajuste do Brasão no telemóvel */
       .brasao-pwa {
         width: 55px !important;
         height: 55px !important;
@@ -464,7 +461,7 @@
     </div>
 
     <div class="card span-4 compact">
-      <div class="label">Renda Mensal (Prevista)</div>
+      <div class="label">Renda Mensal (Fixa)</div>
       <div class="income-input">
         <input type="number" id="renda" placeholder="Ex: 2500.00" min="0" step="0.01" inputmode="decimal">
         <button class="btn primary" id="salvar-renda">Salvar</button>
@@ -473,7 +470,7 @@
     </div>
 
     <div class="card span-4 compact">
-      <div class="label">Saldo do Mês (Renda - Gastos)</div>
+      <div class="label">Saldo do Mês (Total Receitas - Gastos)</div>
       <div class="value" id="saldo">€ 0,00</div>
       <div class="hint" id="saldo-hint">Defina sua renda para ver o saldo final.</div>
     </div>
@@ -483,18 +480,25 @@
       
       <div class="form-grid">
         <div class="form-group">
+          <label for="tipo-lancamento">Tipo</label>
+          <select id="tipo-lancamento">
+            <option value="expense">🔴 Despesa</option>
+            <option value="income">🟢 Renda / Entrada</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="desc">Descrição</label>
-          <input id="desc" placeholder="Ex.: Supermercado / Assinatura">
+          <input id="desc" placeholder="Ex.: Supermercado / Salário Extra">
         </div>
         <div class="form-group">
           <label for="cat">Categoria</label>
-          <input id="cat" placeholder="Ex.: Alimentação">
+          <input id="cat" placeholder="Ex.: Alimentação / Extra">
         </div>
         <div class="form-group">
           <label for="valor">Valor (€)</label>
           <input id="valor" type="number" step="0.01" min="0" inputmode="decimal" placeholder="0.00">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="grupo-cartao">
           <label for="cartao">Cartão</label>
           <select id="cartao">
             <option value="BBVA">BBVA</option>
@@ -516,14 +520,14 @@
               <th>Descrição</th>
               <th>Categoria</th>
               <th class="right">Valor</th>
-              <th>Cartão</th>
+              <th>Cartão / Tipo</th>
               <th class="right">Ação</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
         </table>
         <div id="empty-state" class="empty-state" style="display: none;">
-          Nenhuma despesa cadastrada até o momento.
+          Nenhum lançamento cadastrado até o momento.
         </div>
       </div>
     </div>
@@ -600,6 +604,12 @@
     let currentUser = null;
     let dbCards = [];
     let authMode = 'login';
+
+    // Ocultar ou mostrar o campo de cartão conforme o tipo selecionado
+    byId('tipo-lancamento').addEventListener('change', (e) => {
+      const isIncome = e.target.value === 'income';
+      byId('grupo-cartao').style.display = isIncome ? 'none' : 'block';
+    });
 
     function showToast(message, type = 'info') {
       const container = byId('toast-container');
@@ -773,6 +783,7 @@
 
         state.itens = (expenses || []).map(e => ({
           id: e.id,
+          tipo: e.type || 'expense',
           desc: e.description,
           cat: e.category,
           valor: parseFloat(e.amount),
@@ -793,25 +804,27 @@
       const emptyState = byId('empty-state');
       tbody.innerHTML = '';
 
-      let totBbva = 0, totWise = 0, totMp = 0, totSp = 0, total = 0;
+      let totBbva = 0, totWise = 0, totMp = 0, totSp = 0, totalGastos = 0, totalRendasExtras = 0;
 
       emptyState.style.display = state.itens.length === 0 ? 'block' : 'none';
 
       state.itens.forEach((row, idx) => {
         const tr = document.createElement('tr');
+        const isIncome = row.tipo === 'income';
         
         const tdDesc = document.createElement('td'); 
         tdDesc.textContent = row.desc || '-';
         
         const tdCat = document.createElement('td'); 
-        tdCat.innerHTML = row.cat ? `<span class="tag">${row.cat}</span>` : '-';
+        tdCat.innerHTML = row.cat ? `<span class="tag ${isIncome ? 'tag-income' : 'tag-expense'}">${row.cat}</span>` : '-';
         
         const tdVal = document.createElement('td'); 
         tdVal.className = 'right'; 
-        tdVal.textContent = fmt.format(row.valor || 0);
+        tdVal.style.color = isIncome ? 'var(--ok)' : 'var(--text)';
+        tdVal.textContent = (isIncome ? '+ ' : '- ') + fmt.format(row.valor || 0);
         
         const tdCard = document.createElement('td'); 
-        tdCard.textContent = row.cartao;
+        tdCard.textContent = isIncome ? '🟢 Renda / Entrada' : row.cartao;
         
         const tdAct = document.createElement('td'); 
         tdAct.className = 'right';
@@ -825,12 +838,16 @@
         tr.append(tdDesc, tdCat, tdVal, tdCard, tdAct);
         tbody.appendChild(tr);
 
-        total += row.valor;
-        switch(row.cartao) {
-          case 'BBVA': totBbva += row.valor; break;
-          case 'Wise': totWise += row.valor; break;
-          case 'Mercado Pago': totMp += row.valor; break;
-          case 'Samsung Pay': totSp += row.valor; break;
+        if (isIncome) {
+          totalRendasExtras += row.valor;
+        } else {
+          totalGastos += row.valor;
+          switch(row.cartao) {
+            case 'BBVA': totBbva += row.valor; break;
+            case 'Wise': totWise += row.valor; break;
+            case 'Mercado Pago': totMp += row.valor; break;
+            case 'Samsung Pay': totSp += row.valor; break;
+          }
         }
       });
 
@@ -839,19 +856,20 @@
       byId('tot-mp').textContent = fmt.format(totMp);
       byId('tot-spay').textContent = fmt.format(totSp);
       
-      byId('tot-geral').textContent = fmt.format(total);
+      byId('tot-geral').textContent = fmt.format(totalGastos);
       byId('qtd-itens').textContent = `${state.itens.length} lançamento${state.itens.length === 1 ? '' : 's'} registrado${state.itens.length === 1 ? '' : 's'}`;
 
       byId('renda').value = state.renda > 0 ? state.renda : '';
-      const renda = Number(state.renda) || 0;
-      const saldo = renda - total;
+      const rendaFixa = Number(state.renda) || 0;
+      const totalReceitas = rendaFixa + totalRendasExtras;
+      const saldo = totalReceitas - totalGastos;
       
       const saldoEl = byId('saldo');
       saldoEl.textContent = fmt.format(saldo);
       
-      byId('saldo-hint').textContent = renda > 0 
-        ? `Renda: ${fmt.format(renda)} − Gastos: ${fmt.format(total)}` 
-        : `Defina sua renda para ver o saldo final.`;
+      byId('saldo-hint').textContent = (totalRendasExtras > 0)
+        ? `Receitas (${fmt.format(rendaFixa)} + ${fmt.format(totalRendasExtras)}) − Gastos: ${fmt.format(totalGastos)}`
+        : (rendaFixa > 0 ? `Renda: ${fmt.format(rendaFixa)} − Gastos: ${fmt.format(totalGastos)}` : `Defina sua renda para ver o saldo final.`);
 
       saldoEl.className = 'value ' + (saldo > 0 ? 'kpi-ok' : saldo === 0 ? 'kpi-warn' : 'kpi-bad');
     }
@@ -860,6 +878,7 @@
     // 5. AÇÕES CRUD (SALVAR E EXCLUIR)
     // ==========================================
     async function addItem() {
+      const tipo = byId('tipo-lancamento').value;
       const desc = byId('desc').value.trim();
       const cat = byId('cat').value.trim();
       const valorRaw = byId('valor').value;
@@ -876,16 +895,17 @@
       if (!client || !currentUser) {
         state.itens.unshift({
           id: String(Date.now()),
-          desc: desc || 'Sem descrição',
-          cat: cat || 'Geral',
+          tipo,
+          desc: desc || (tipo === 'income' ? 'Entrada' : 'Sem descrição'),
+          cat: cat || (tipo === 'income' ? 'Renda' : 'Geral'),
           valor,
-          cartao: cartaoNome
+          cartao: tipo === 'income' ? 'Renda' : cartaoNome
         });
         byId('desc').value = '';
         byId('cat').value = '';
         byId('valor').value = '';
         render();
-        showToast('Despesa salva localmente.');
+        showToast('Lançamento salvo localmente.');
         return;
       }
 
@@ -897,9 +917,10 @@
         .from('expenses')
         .insert([{
           user_id: currentUser.id,
-          card_id: cardObj ? cardObj.id : null,
-          description: desc || 'Sem descrição',
-          category: cat || 'Geral',
+          card_id: tipo === 'income' ? null : (cardObj ? cardObj.id : null),
+          type: tipo,
+          description: desc || (tipo === 'income' ? 'Entrada' : 'Sem descrição'),
+          category: cat || (tipo === 'income' ? 'Renda' : 'Geral'),
           amount: valor
         }])
         .select();
@@ -911,10 +932,11 @@
       } else if (data && data.length > 0) {
         state.itens.unshift({
           id: data[0].id,
-          desc: desc || 'Sem descrição',
-          cat: cat || 'Geral',
+          tipo,
+          desc: data[0].description,
+          cat: data[0].category,
           valor,
-          cartao: cartaoNome
+          cartao: tipo === 'income' ? 'Renda' : cartaoNome
         });
         
         byId('desc').value = '';
@@ -922,7 +944,7 @@
         byId('valor').value = '';
         
         render();
-        showToast('Despesa salva na nuvem com sucesso!');
+        showToast('Lançamento salvo na nuvem com sucesso!');
       }
     }
 
@@ -933,7 +955,7 @@
       }
       state.itens.splice(idx, 1);
       render();
-      showToast('Despesa removida.');
+      showToast('Lançamento removido.');
     }
 
     async function salvarRenda() {
@@ -957,7 +979,7 @@
       }
 
       render();
-      showToast('Renda salva com sucesso!');
+      showToast('Renda fixa salva com sucesso!');
     }
 
     function exportCSV() {
@@ -966,8 +988,9 @@
         return;
       }
 
-      const headers = ['Descricao', 'Categoria', 'Valor', 'Cartao'];
+      const headers = ['Tipo', 'Descricao', 'Categoria', 'Valor', 'Cartao'];
       const lines = state.itens.map(i => [
+        `"${i.tipo}"`,
         `"${(i.desc || '').replace(/"/g, '""')}"`,
         `"${(i.cat || '').replace(/"/g, '""')}"`,
         String(i.valor).replace('.', ','),
@@ -979,7 +1002,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `gastos-mensais-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `gastos-e-rendas-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       showToast('Relatório CSV baixado!');
@@ -989,7 +1012,6 @@
     byId('salvar-renda').addEventListener('click', salvarRenda);
     byId('export').addEventListener('click', exportCSV);
 
-    // Registrador do Service Worker (PWA)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
@@ -1001,7 +1023,6 @@
     initAuth();
   </script>
 
-  <!-- Brasão Domingues Gomes com classe otimizada para PWA/Mobile -->
   <img src="brasao.png" alt="Brasão Domingues Gomes" class="brasao-pwa" style="position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
 </body>
 </html>
