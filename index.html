@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Dashboard de Gastos Mensais - Pro</title>
 
   <!-- Google Fonts & Supabase SDK -->
@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Configurações PWA e Ícone do App -->
+
+  <!-- Configurações PWA e Ícone do App -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#090d16">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,6 +50,7 @@
       color: var(--text);
       min-height: 100vh;
       line-height: 1.5;
+      padding-bottom: 90px; /* Espaço para o brasão fixo */
     }
 
     .cloud-status-banner {
@@ -63,7 +65,7 @@
     }
 
     header {
-      padding: 24px 20px;
+      padding: 20px 16px;
       max-width: 1200px;
       margin: 0 auto;
       display: flex;
@@ -72,30 +74,30 @@
       border-bottom: 1px solid var(--border);
     }
     .brand-title {
-      font-size: clamp(20px, 3vw, 26px);
+      font-size: clamp(20px, 4vw, 26px);
       font-weight: 800;
       letter-spacing: -0.02em;
       background: linear-gradient(135deg, #ffffff 30%, var(--muted));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .brand-subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .brand-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
     .user-profile {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       background: rgba(255, 255, 255, 0.03);
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 999px;
       border: 1px solid var(--border);
     }
-    .user-email { font-size: 13px; font-weight: 600; color: var(--text); }
+    .user-email { font-size: 12px; font-weight: 600; color: var(--text); }
 
     .grid {
       display: grid;
       gap: 16px;
-      padding: 24px 20px;
+      padding: 16px;
       max-width: 1200px;
       margin: 0 auto;
       grid-template-columns: repeat(12, 1fr);
@@ -110,22 +112,11 @@
       box-shadow: var(--shadow);
       transition: var(--transition);
     }
-    .card.compact { padding: 16px 18px; }
-    .card:hover { border-color: rgba(255, 255, 255, 0.15); }
+    .card.compact { padding: 16px; }
 
     .span-3 { grid-column: span 3; }
     .span-4 { grid-column: span 4; }
     .span-12 { grid-column: span 12; }
-
-    @media (max-width: 1024px) {
-      .span-3 { grid-column: span 6; }
-      .span-4 { grid-column: span 6; }
-    }
-    @media (max-width: 640px) {
-      .grid { grid-template-columns: repeat(6, 1fr); }
-      .span-3, .span-4 { grid-column: span 6; }
-      header { flex-direction: column; align-items: flex-start; gap: 12px; }
-    }
 
     .label {
       font-size: 11px;
@@ -157,12 +148,12 @@
     .income-input { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
     input, select {
       width: 100%;
-      padding: 11px 14px;
+      padding: 12px 14px;
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--border);
       border-radius: 12px;
       color: var(--text);
-      font-size: 14px;
+      font-size: 15px; /* Evita zoom automático no iOS */
       font-family: inherit;
       outline: none;
       transition: var(--transition);
@@ -177,10 +168,10 @@
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.05);
       color: var(--text);
-      padding: 11px 16px;
+      padding: 12px 16px;
       border-radius: 12px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 14px;
       font-family: inherit;
       transition: var(--transition);
       display: inline-flex;
@@ -207,11 +198,6 @@
     }
     .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
     .form-actions { display: flex; gap: 8px; }
-
-    @media (max-width: 900px) {
-      .form-grid { grid-template-columns: 1fr 1fr; }
-      .form-actions { grid-column: span 2; justify-content: flex-end; }
-    }
 
     .table-container { overflow-x: auto; margin-top: 16px; }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -264,7 +250,7 @@
       border-radius: 24px;
       width: 100%;
       max-width: 420px;
-      padding: 32px;
+      padding: 28px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     }
     .modal-header { margin-bottom: 20px; text-align: center; }
@@ -300,8 +286,9 @@
     .modal-form { display: flex; flex-direction: column; gap: 14px; }
 
     .toast-container {
-      position: fixed; bottom: 20px; right: 20px; z-index: 200;
+      position: fixed; bottom: 20px; left: 20px; z-index: 200;
       display: flex; flex-direction: column; gap: 8px;
+      max-width: calc(100vw - 120px);
     }
     .toast {
       background: var(--panel);
@@ -326,11 +313,112 @@
 
     footer {
       max-width: 1200px;
-      margin: 20px auto 40px;
+      margin: 20px auto;
       padding: 0 20px;
       color: var(--muted);
       font-size: 12px;
       text-align: center;
+    }
+
+    /* ==========================================
+       MEDIA QUERIES (OTIMIZAÇÃO EXCLUSIVA MOBILE)
+       ========================================== */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .user-profile {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .grid {
+        padding: 12px;
+        gap: 12px;
+      }
+      /* Cartões de resumo em 2 colunas no telemóvel */
+      .span-3 { grid-column: span 6; }
+      .span-4 { grid-column: span 12; }
+      .span-12 { grid-column: span 12; }
+
+      /* Formulário na vertical */
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .form-actions {
+        flex-direction: column;
+        margin-top: 8px;
+      }
+      .form-actions .btn {
+        width: 100%;
+      }
+
+      /* Tabela adaptada para lista de Cards no Mobile */
+      .table-container table, 
+      .table-container thead, 
+      .table-container tbody, 
+      .table-container th, 
+      .table-container td, 
+      .table-container tr { 
+        display: block; 
+      }
+
+      .table-container thead { display: none; } /* Oculta o cabeçalho no mobile */
+
+      .table-container tr {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 10px;
+        padding: 12px 14px;
+        position: relative;
+      }
+
+      .table-container td {
+        border: none;
+        padding: 4px 0;
+        text-align: left !important;
+      }
+
+      .table-container td:nth-child(1) { /* Descrição */
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text);
+        padding-right: 70px;
+      }
+
+      .table-container td:nth-child(2) { /* Categoria */
+        display: inline-block;
+        margin-top: 4px;
+      }
+
+      .table-container td:nth-child(3) { /* Valor */
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--accent);
+        margin-top: 6px;
+      }
+
+      .table-container td:nth-child(4) { /* Cartão */
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .table-container td:nth-child(5) { /* Botão Excluir */
+        position: absolute;
+        top: 12px;
+        right: 12px;
+      }
+
+      /* Ajuste do Brasão no telemóvel */
+      .brasao-pwa {
+        width: 55px !important;
+        height: 55px !important;
+        bottom: 16px !important;
+        right: 16px !important;
+      }
     }
   </style>
 </head>
@@ -475,7 +563,7 @@
 
   <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO DO SUPABASE (CORRIGIDA)
+    // 1. CONFIGURAÇÃO DO SUPABASE
     // ==========================================
     const SUPABASE_URL = 'https://hpcrykdbxhonsrzgmnbr.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwY3J5a2RieGhvbnNyemdtbmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODg2MDcsImV4cCI6MjEwNjE2NDYwN30.Eryo931h8JkIQV0uG4TLOpUcTKjNQzDAcbUb2WGT15Y';
@@ -720,7 +808,6 @@
         
         const tdVal = document.createElement('td'); 
         tdVal.className = 'right'; 
-        tdVal.style.fontWeight = '700';
         tdVal.textContent = fmt.format(row.valor || 0);
         
         const tdCard = document.createElement('td'); 
@@ -902,18 +989,19 @@
     byId('salvar-renda').addEventListener('click', salvarRenda);
     byId('export').addEventListener('click', exportCSV);
 
+    // Registrador do Service Worker (PWA)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('Service Worker registado!'))
+          .catch(err => console.log('Erro no Service Worker:', err));
+      });
+    }
+
     initAuth();
-// Registo do Service Worker para permitir a instalação real no Android
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker registado com sucesso!'))
-        .catch(err => console.log('Falha ao registar o Service Worker:', err));
-    });
-  }
   </script>
 
-  <!-- Brasão Domingues Gomes no canto inferior direito -->
-  <img src="brasao.png" alt="Brasão Domingues Gomes" style="position: fixed; bottom: 20px; right: 20px; width: 75px; height: 75px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
+  <!-- Brasão Domingues Gomes com classe otimizada para PWA/Mobile -->
+  <img src="brasao.png" alt="Brasão Domingues Gomes" class="brasao-pwa" style="position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
 </body>
 </html>
