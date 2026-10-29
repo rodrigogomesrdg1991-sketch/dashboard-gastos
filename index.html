@@ -38,6 +38,11 @@
       --shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
       --radius: 16px;
       --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      /* Tom de Bronze Metálico */
+      --bronze: linear-gradient(135deg, #b08d57 0%, #d4af37 50%, #8c6239 100%);
+      --bronze-border: rgba(212, 175, 55, 0.4);
+      --bronze-glow: rgba(212, 175, 55, 0.15);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,6 +56,14 @@
       min-height: 100vh;
       line-height: 1.5;
       padding-bottom: 90px;
+    }
+
+    /* Faixa de Bronze no Topo */
+    .top-bronze-bar {
+      height: 5px;
+      width: 100%;
+      background: var(--bronze);
+      box-shadow: 0 0 15px var(--bronze-glow);
     }
 
     .cloud-status-banner {
@@ -421,6 +434,9 @@
 </head>
 <body>
 
+  <!-- Faixa de Bronze no Topo -->
+  <div class="top-bronze-bar"></div>
+
   <div id="demo-banner" class="cloud-status-banner">
     ⚠️ <strong>Atenção:</strong> Chaves do Supabase não configuradas no código. O site está rodando em <em>Modo Local Temporário</em> e os dados não serão sincronizados em outros aparelhos.
   </div>
@@ -605,7 +621,6 @@
     let dbCards = [];
     let authMode = 'login';
 
-    // Ocultar ou mostrar o campo de cartão conforme o tipo selecionado
     byId('tipo-lancamento').addEventListener('change', (e) => {
       const isIncome = e.target.value === 'income';
       byId('grupo-cartao').style.display = isIncome ? 'none' : 'block';
@@ -1023,6 +1038,7 @@
     initAuth();
   </script>
 
+  <!-- Brasão Domingues Gomes no canto inferior direito -->
   <img src="brasao.png" alt="Brasão Domingues Gomes" class="brasao-pwa" style="position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
 </body>
 </html>
