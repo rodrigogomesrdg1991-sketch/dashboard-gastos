@@ -149,6 +149,13 @@
     .badge-mp { background: #00a9e0; box-shadow: 0 0 10px #00a9e0; }
     .badge-spay { background: #1259e2; box-shadow: 0 0 10px #1259e2; }
 
+    /* Indicador padronizado com o estilo do Mercado Pago (#00a9e0) */
+    .type-badge {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+      background: #00a9e0; box-shadow: 0 0 10px #00a9e0;
+      margin-right: 6px;
+    }
+
     .value {
       font-variant-numeric: tabular-nums;
       font-size: clamp(20px, 2.8vw, 28px);
@@ -498,8 +505,8 @@
         <div class="form-group">
           <label for="tipo-lancamento">Tipo</label>
           <select id="tipo-lancamento">
-            <option value="expense">🔴 Despesa</option>
-            <option value="income">🟢 Renda / Entrada</option>
+            <option value="expense"><span class="type-badge"></span> Despesa</option>
+            <option value="income"><span class="type-badge"></span> Renda / Entrada</option>
           </select>
         </div>
         <div class="form-group">
@@ -839,7 +846,7 @@
         tdVal.textContent = (isIncome ? '+ ' : '- ') + fmt.format(row.valor || 0);
         
         const tdCard = document.createElement('td'); 
-        tdCard.textContent = isIncome ? '🟢 Renda / Entrada' : row.cartao;
+        tdCard.innerHTML = isIncome ? '<span class="type-badge"></span> Renda / Entrada' : row.cartao;
         
         const tdAct = document.createElement('td'); 
         tdAct.className = 'right';
