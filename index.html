@@ -48,7 +48,7 @@
       --bronze-glow: rgba(212, 175, 55, 0.15);
     }
 
-    /* Tema Claro (Light Mode) ativado ao clicar no Brasão */
+    /* Tema Claro (Light Mode) */
     body.theme-light {
       --bg-gradient-1: #e2e8f0;
       --bg-gradient-2: #bae6fd;
@@ -124,9 +124,7 @@
       border-radius: 999px;
       border: 1px solid var(--border);
     }
-    body.theme-light .user-profile {
-      background: rgba(0, 0, 0, 0.03);
-    }
+    body.theme-light .user-profile { background: rgba(0, 0, 0, 0.03); }
     .user-email { font-size: 12px; font-weight: 600; color: var(--text); }
 
     .grid {
@@ -147,9 +145,7 @@
       box-shadow: var(--shadow);
       transition: var(--transition);
     }
-    body.theme-light .card {
-      background: var(--panel);
-    }
+    body.theme-light .card { background: var(--panel); }
     .card.compact { padding: 16px; }
 
     .span-3 { grid-column: span 3; }
@@ -195,9 +191,7 @@
       outline: none;
       transition: var(--transition);
     }
-    body.theme-light input, body.theme-light select {
-      background: rgba(241, 245, 249, 0.8);
-    }
+    body.theme-light input, body.theme-light select { background: rgba(241, 245, 249, 0.8); }
     input:focus, select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
@@ -220,12 +214,9 @@
       gap: 6px;
       white-space: nowrap;
     }
-    body.theme-light .btn {
-      background: rgba(0, 0, 0, 0.04);
-    }
+    body.theme-light .btn { background: rgba(0, 0, 0, 0.04); }
     .btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
     
-    /* Botão Principal padronizado com alta visibilidade e contraste */
     .btn.primary { 
       background: var(--accent); 
       color: #090d16; 
@@ -233,9 +224,41 @@
       font-weight: 700; 
       box-shadow: 0 4px 14px var(--accent-glow);
     }
-    .btn.primary:hover { 
-      filter: brightness(1.1); 
+    .btn.primary:hover { filter: brightness(1.1); }
+
+    .btn-google {
+      width: 100%;
+      background: #ffffff;
+      color: #1e293b;
+      border: 1px solid var(--border);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
     }
+    .btn-google:hover { background: #f1f5f9; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+    .divider::before { margin-right: 10px; }
+    .divider::after { margin-left: 10px; }
 
     .btn.bad { border-color: rgba(239, 68, 68, 0.3); background: var(--bad-glow); color: #ef4444; }
     .btn.bad:hover { background: rgba(239, 68, 68, 0.3); }
@@ -320,11 +343,9 @@
       padding: 4px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
-    body.theme-light .auth-tabs {
-      background: rgba(0, 0, 0, 0.05);
-    }
+    body.theme-light .auth-tabs { background: rgba(0, 0, 0, 0.05); }
     .auth-tab {
       flex: 1;
       padding: 8px;
@@ -406,9 +427,7 @@
       transform: scale(1.08);
       box-shadow: 0 6px 20px rgba(0,0,0,0.8);
     }
-    .brasao-pwa:active {
-      transform: scale(0.95);
-    }
+    .brasao-pwa:active { transform: scale(0.95); }
 
     /* ==========================================
        MEDIA QUERIES (OTIMIZAÇÃO MOBILE)
@@ -439,9 +458,7 @@
         flex-direction: column;
         margin-top: 8px;
       }
-      .form-actions .btn {
-        width: 100%;
-      }
+      .form-actions .btn { width: 100%; }
 
       .table-container table, 
       .table-container thead, 
@@ -462,9 +479,7 @@
         padding: 12px 14px;
         position: relative;
       }
-      body.theme-light .table-container tr {
-        background: rgba(0, 0, 0, 0.02);
-      }
+      body.theme-light .table-container tr { background: rgba(0, 0, 0, 0.02); }
 
       .table-container td {
         border: none;
@@ -642,6 +657,14 @@
         <button type="button" class="auth-tab active" id="tab-login">Entrar</button>
         <button type="button" class="auth-tab" id="tab-signup">Criar Conta</button>
       </div>
+
+      <!-- Botão de Login com Google -->
+      <button type="button" class="btn-google" id="btn-google-auth">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.15v3.14C3.13 21.32 7.21 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.62H1.15C.42 8.1 0 9.77 0 11.5s.42 3.4 1.15 4.88l4.12-3.14z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.21 0 3.13 2.68 1.15 6.62l4.12 3.14c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+        Continuar com o Google
+      </button>
+
+      <div class="divider">ou com e-mail e senha</div>
       
       <form class="modal-form" id="auth-form">
         <div>
@@ -802,6 +825,24 @@
       byId('modal-title').textContent = mode === 'login' ? 'Acessar Conta' : 'Criar Nova Conta';
       byId('btn-auth-submit').textContent = mode === 'login' ? 'Entrar no Dashboard' : 'Cadastrar e Entrar';
     }
+
+    // Ação de Login com Google OAuth
+    byId('btn-google-auth').addEventListener('click', async () => {
+      const client = getSupabaseClient();
+      if (!client) {
+        showToast('Modo local: Autenticação Google requer Supabase ativo.', 'error');
+        return;
+      }
+      const { error } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) {
+        showToast('Erro ao entrar com Google: ' + error.message, 'error');
+      }
+    });
 
     byId('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
