@@ -13,7 +13,7 @@
 
   <!-- Configurações PWA e Ícone do App -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#090d16" id="theme-color-meta">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Gastos">
@@ -21,6 +21,9 @@
 
   <style>
     :root {
+      /* Tema Escuro Padrão */
+      --bg-gradient-1: #1e293b;
+      --bg-gradient-2: #0369a1;
       --bg: #090d16;
       --panel: #111827;
       --panel-hover: #1f293d;
@@ -37,7 +40,7 @@
       --border-focus: rgba(56, 189, 248, 0.5);
       --shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
       --radius: 16px;
-      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       
       /* Tom de Bronze Metálico */
       --bronze: linear-gradient(135deg, #b08d57 0%, #d4af37 50%, #8c6239 100%);
@@ -45,17 +48,33 @@
       --bronze-glow: rgba(212, 175, 55, 0.15);
     }
 
+    /* Tema Claro (Light Mode) ativado ao clicar no Brasão */
+    body.theme-light {
+      --bg-gradient-1: #e2e8f0;
+      --bg-gradient-2: #bae6fd;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --panel-hover: #f1f5f9;
+      --muted: #64748b;
+      --text: #0f172a;
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.15);
+      --border: rgba(0, 0, 0, 0.08);
+      --shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.08);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: radial-gradient(1200px 600px at 15% -10%, #1e293b 0, transparent 60%),
-                  radial-gradient(1000px 500px at 110% -10%, #0369a1 0, transparent 50%),
+      background: radial-gradient(1200px 600px at 15% -10%, var(--bg-gradient-1) 0, transparent 60%),
+                  radial-gradient(1000px 500px at 110% -10%, var(--bg-gradient-2) 0, transparent 50%),
                   var(--bg);
       color: var(--text);
       min-height: 100vh;
       line-height: 1.5;
       padding-bottom: 90px;
+      transition: background 0.4s ease, color 0.4s ease;
     }
 
     /* Faixa de Bronze no Topo */
@@ -90,7 +109,7 @@
       font-size: clamp(20px, 4vw, 26px);
       font-weight: 800;
       letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #ffffff 30%, var(--muted));
+      background: linear-gradient(135deg, var(--text) 30%, var(--muted));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -104,6 +123,9 @@
       padding: 6px 12px;
       border-radius: 999px;
       border: 1px solid var(--border);
+    }
+    body.theme-light .user-profile {
+      background: rgba(0, 0, 0, 0.03);
     }
     .user-email { font-size: 12px; font-weight: 600; color: var(--text); }
 
@@ -125,6 +147,9 @@
       box-shadow: var(--shadow);
       transition: var(--transition);
     }
+    body.theme-light .card {
+      background: var(--panel);
+    }
     .card.compact { padding: 16px; }
 
     .span-3 { grid-column: span 3; }
@@ -142,7 +167,6 @@
       gap: 6px;
     }
 
-    /* Bolinhas padronizadas com a cor e brilho do Mercado Pago (#00a9e0) */
     .card-badge, .type-badge {
       width: 8px; height: 8px; border-radius: 50%; display: inline-block;
       background: #00a9e0; box-shadow: 0 0 10px #00a9e0;
@@ -171,6 +195,9 @@
       outline: none;
       transition: var(--transition);
     }
+    body.theme-light input, body.theme-light select {
+      background: rgba(241, 245, 249, 0.8);
+    }
     input:focus, select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
@@ -193,10 +220,13 @@
       gap: 6px;
       white-space: nowrap;
     }
+    body.theme-light .btn {
+      background: rgba(0, 0, 0, 0.04);
+    }
     .btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
-    .btn.primary { background: var(--accent); color: #090d16; border: none; font-weight: 700; }
-    .btn.primary:hover { background: #7dd3fc; }
-    .btn.bad { border-color: rgba(239, 68, 68, 0.3); background: var(--bad-glow); color: #fca5a5; }
+    .btn.primary { background: var(--accent); color: #ffffff; border: none; font-weight: 700; }
+    .btn.primary:hover { opacity: 0.9; }
+    .btn.bad { border-color: rgba(239, 68, 68, 0.3); background: var(--bad-glow); color: #ef4444; }
     .btn.bad:hover { background: rgba(239, 68, 68, 0.3); }
     .btn.sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 
@@ -227,6 +257,7 @@
     td { padding: 14px 10px; border-bottom: 1px solid var(--border); }
     tbody tr { transition: var(--transition); }
     tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+    body.theme-light tbody tr:hover { background: rgba(0, 0, 0, 0.02); }
     .right { text-align: right; }
     .tag {
       font-size: 11px;
@@ -237,8 +268,8 @@
       color: var(--muted);
       font-weight: 500;
     }
-    .tag-income { border-color: rgba(34, 197, 94, 0.3); background: var(--ok-glow); color: #86efac; }
-    .tag-expense { border-color: rgba(239, 68, 68, 0.3); background: var(--bad-glow); color: #fca5a5; }
+    .tag-income { border-color: rgba(34, 197, 94, 0.3); background: var(--ok-glow); color: #16a34a; }
+    .tag-expense { border-color: rgba(239, 68, 68, 0.3); background: var(--bad-glow); color: #dc2626; }
 
     .kpi-ok { color: var(--ok); text-shadow: 0 0 12px var(--ok-glow); }
     .kpi-warn { color: var(--warn); }
@@ -335,6 +366,31 @@
       text-align: center;
     }
 
+    /* Brasão interativo com animação de clique */
+    .brasao-pwa {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      opacity: 0.85;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      z-index: 1000;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .brasao-pwa:hover {
+      opacity: 1;
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.8);
+    }
+    .brasao-pwa:active {
+      transform: scale(0.95);
+    }
+
     /* ==========================================
        MEDIA QUERIES (OTIMIZAÇÃO MOBILE)
        ========================================== */
@@ -386,6 +442,9 @@
         margin-bottom: 10px;
         padding: 12px 14px;
         position: relative;
+      }
+      body.theme-light .table-container tr {
+        background: rgba(0, 0, 0, 0.02);
       }
 
       .table-container td {
@@ -581,6 +640,9 @@
 
   <div class="toast-container" id="toast-container"></div>
 
+  <!-- Brasão Domingues Gomes interativo no canto inferior direito -->
+  <img src="brasao.png" alt="Brasão Domingues Gomes" id="brasao-toggle" class="brasao-pwa" title="Clique para alternar o tema">
+
   <script>
     // ==========================================
     // 1. CONFIGURAÇÃO DO SUPABASE
@@ -620,6 +682,23 @@
     let currentUser = null;
     let dbCards = [];
     let authMode = 'login';
+
+    // Alternar Tema Escuro / Claro ao Clicar no Brasão
+    const brasaoBtn = byId('brasao-toggle');
+    const savedTheme = localStorage.getItem('theme_preference');
+    
+    if (savedTheme === 'light') {
+      document.body.classList.add('theme-light');
+      byId('theme-color-meta').setAttribute('content', '#f8fafc');
+    }
+
+    brasaoBtn.addEventListener('click', () => {
+      document.body.classList.toggle('theme-light');
+      const isLight = document.body.classList.contains('theme-light');
+      localStorage.setItem('theme_preference', isLight ? 'light' : 'dark');
+      byId('theme-color-meta').setAttribute('content', isLight ? '#f8fafc' : '#090d16');
+      showToast(isLight ? 'Tema Claro ativado!' : 'Tema Escuro ativado!');
+    });
 
     byId('tipo-lancamento').addEventListener('change', (e) => {
       const isIncome = e.target.value === 'income';
@@ -1037,8 +1116,5 @@
 
     initAuth();
   </script>
-
-  <!-- Brasão Domingues Gomes no canto inferior direito -->
-  <img src="brasao.png" alt="Brasão Domingues Gomes" class="brasao-pwa" style="position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; border-radius: 50%; opacity: 0.85; box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 1000; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
 </body>
 </html>
