@@ -430,8 +430,8 @@
     .brasao-pwa:active { transform: scale(0.95); }
 
     /* ==========================================
-       MEDIA QUERIES (OTIMIZAÇÃO MOBILE)
-       ========================================== */
+        MEDIA QUERIES (OTIMIZAÇÃO MOBILE)
+        ========================================== */
     @media (max-width: 768px) {
       header {
         flex-direction: column;
@@ -826,7 +826,7 @@
       byId('btn-auth-submit').textContent = mode === 'login' ? 'Entrar no Dashboard' : 'Cadastrar e Entrar';
     }
 
-    // Ação de Login com Google OAuth
+    // Ação de Login com Google OAuth (Redirecionando para a URL dinâmica atual)
     byId('btn-google-auth').addEventListener('click', async () => {
       const client = getSupabaseClient();
       if (!client) {
@@ -962,46 +962,50 @@
 
       emptyState.style.display = state.itens.length === 0 ? 'block' : 'none';
 
-      state.itens.forEach((row, idx) => {
+      state.itens.forEach((row) => {
         const tr = document.createElement('tr');
         const isIncome = row.tipo === 'income';
         
         const tdDesc = document.createElement('td'); 
         tdDesc.textContent = row.desc || '-';
         
-        const tdCat = document.createElement('td'); 
-        tdCat.innerHTML = row.cat ? `<span class="tag ${isIncome ? 'tag-income' : 'tag-expense'}">${row.cat}</span>` : '-';
+        const tdCat = document.createElement('td');
+        const spanCat = document.createElement('span');
+        spanCat.className = 'tag ' + (isIncome ? 'tag-income' : '');
+        spanCat.textContent = row.cat || '-';
+        tdCat.appendChild(spanCat);
         
-        const tdVal = document.createElement('td'); 
-        tdVal.className = 'right'; 
+        const tdVal = document.createElement('td');
+        tdVal.className = 'right';
         tdVal.style.color = isIncome ? 'var(--ok)' : 'var(--text)';
-        tdVal.textContent = (isIncome ? '+ ' : '- ') + fmt.format(row.valor || 0);
+        tdVal.textContent = (isIncome ? '+ ' : '- ') + fmt.format(row.valor);
         
-        const tdCard = document.createElement('td'); 
-        tdCard.innerHTML = isIncome ? '<span class="type-badge"></span> Renda / Entrada' : `<span class="type-badge"></span> ${row.cartao}`;
+        const tdCard = document.createElement('td');
+        tdCard.textContent = isIncome ? 'Renda / Entrada' : row.cartao;
         
-        const tdAct = document.createElement('td'); 
-        tdAct.className = 'right';
-        
-        const delBtn = document.createElement('button'); 
-        delBtn.className = 'btn bad sm'; 
-        delBtn.textContent = 'Excluir'; 
-        delBtn.onclick = () => removeItem(row.id, idx);
-        
-        tdAct.appendChild(delBtn);
-        tr.append(tdDesc, tdCat, tdVal, tdCard, tdAct);
+        const tdAction = document.createElement('td');
+        tdAction.className = 'right';
+        const btnDel = document.createElement('button');
+        btnDel.className = 'btn sm bad';
+        btnDel.textContent = 'Excluir';
+        btnDel.onclick = () => deleteItem(row.id);
+        tdAction.appendChild(btnDel);
+
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdVal);
+        tr.appendChild(tdCard);
+        tr.appendChild(tdAction);
         tbody.appendChild(tr);
 
         if (isIncome) {
           totalRendasExtras += row.valor;
         } else {
           totalGastos += row.valor;
-          switch(row.cartao) {
-            case 'BBVA': totBbva += row.valor; break;
-            case 'Wise': totWise += row.valor; break;
-            case 'Mercado Pago': totMp += row.valor; break;
-            case 'Samsung Pay': totSp += row.valor; break;
-          }
+          if (row.cartao === 'BBVA') totBbva += row.valor;
+          else if (row.cartao === 'Wise') totWise += row.valor;
+          else if (row.cartao === 'Mercado Pago') totMp += row.valor;
+          else if (row.cartao === 'Samsung Pay') totSp += row.valor;
         }
       });
 
@@ -1009,172 +1013,100 @@
       byId('tot-wise').textContent = fmt.format(totWise);
       byId('tot-mp').textContent = fmt.format(totMp);
       byId('tot-spay').textContent = fmt.format(totSp);
-      
       byId('tot-geral').textContent = fmt.format(totalGastos);
-      byId('qtd-itens').textContent = `${state.itens.length} lançamento${state.itens.length === 1 ? '' : 's'} registrado${state.itens.length === 1 ? '' : 's'}`;
+      byId('qtd-itens').textContent = `${state.itens.length} lançamento(s) registrado(s)`;
 
       byId('renda').value = state.renda > 0 ? state.renda : '';
-      const rendaFixa = Number(state.renda) || 0;
-      const totalReceitas = rendaFixa + totalRendasExtras;
-      const saldo = totalReceitas - totalGastos;
       
+      const saldoTotalReceitas = state.renda + totalRendasExtras;
+      const saldoFinal = saldoTotalReceitas - totalGastos;
       const saldoEl = byId('saldo');
-      saldoEl.textContent = fmt.format(saldo);
-      
-      byId('saldo-hint').textContent = (totalRendasExtras > 0)
-        ? `Receitas (${fmt.format(rendaFixa)} + ${fmt.format(totalRendasExtras)}) − Gastos: ${fmt.format(totalGastos)}`
-        : (rendaFixa > 0 ? `Renda: ${fmt.format(rendaFixa)} − Gastos: ${fmt.format(totalGastos)}` : `Defina sua renda para ver o saldo final.`);
-
-      saldoEl.className = 'value ' + (saldo > 0 ? 'kpi-ok' : saldo === 0 ? 'kpi-warn' : 'kpi-bad');
+      saldoEl.textContent = fmt.format(saldoFinal);
+      saldoEl.className = 'value ' + (saldoFinal >= 0 ? 'kpi-ok' : 'kpi-bad');
+      byId('saldo-hint').textContent = `Receitas: ${fmt.format(saldoTotalReceitas)} | Gastos: ${fmt.format(totalGastos)}`;
     }
 
-    // ==========================================
-    // 5. AÇÕES CRUD (SALVAR E EXCLUIR)
-    // ==========================================
-    async function addItem() {
+    byId('salvar-renda').addEventListener('click', async () => {
+      const val = parseFloat(byId('renda').value) || 0;
+      state.renda = val;
+      const client = getSupabaseClient();
+      if (client && currentUser && currentUser.id !== 'local-demo-user') {
+        const { error } = await client.from('profiles').upsert({
+          id: currentUser.id,
+          monthly_income: val,
+          updated_at: new Date()
+        });
+        if (error) {
+          showToast('Erro ao salvar renda: ' + error.message, 'error');
+          return;
+        }
+      }
+      showToast('Renda mensal atualizada!');
+      render();
+    });
+
+    byId('add').addEventListener('click', async () => {
       const tipo = byId('tipo-lancamento').value;
       const desc = byId('desc').value.trim();
       const cat = byId('cat').value.trim();
-      const valorRaw = byId('valor').value;
-      const valor = parseFloat(valorRaw);
+      const valor = parseFloat(byId('valor').value);
       const cartaoNome = byId('cartao').value;
 
-      if (!valor || valor <= 0) {
-        showToast('Informe um valor válido maior que zero.', 'error');
+      if (!desc || isNaN(valor) || valor <= 0) {
+        showToast('Preencha a descrição e um valor válido.', 'error');
         return;
       }
 
       const client = getSupabaseClient();
-
-      if (!client || !currentUser) {
+      if (!client || !currentUser || currentUser.id === 'local-demo-user') {
         state.itens.unshift({
-          id: String(Date.now()),
+          id: 'local-' + Date.now(),
           tipo,
-          desc: desc || (tipo === 'income' ? 'Entrada' : 'Sem descrição'),
-          cat: cat || (tipo === 'income' ? 'Renda' : 'Geral'),
+          desc,
+          cat: cat || 'Geral',
           valor,
-          cartao: tipo === 'income' ? 'Renda' : cartaoNome
+          cartao: cartaoNome
         });
         byId('desc').value = '';
         byId('cat').value = '';
         byId('valor').value = '';
+        showToast('Lançamento adicionado (Local)!');
         render();
-        showToast('Lançamento salvo localmente.');
         return;
       }
 
-      const cardObj = dbCards.find(c => c.name === cartaoNome);
-      const addBtn = byId('add');
-      addBtn.disabled = true;
+      let cardId = null;
+      if (tipo === 'expense') {
+        const foundCard = dbCards.find(c => c.name === cartaoNome);
+        if (foundCard) {
+          cardId = foundCard.id;
+        } else if (dbCards.length > 0) {
+          cardId = dbCards[0].id;
+        }
+      }
 
-      const { data, error } = await client
-        .from('expenses')
-        .insert([{
-          user_id: currentUser.id,
-          card_id: tipo === 'income' ? null : (cardObj ? cardObj.id : null),
-          type: tipo,
-          description: desc || (tipo === 'income' ? 'Entrada' : 'Sem descrição'),
-          category: cat || (tipo === 'income' ? 'Renda' : 'Geral'),
-          amount: valor
-        }])
-        .select();
-
-      addBtn.disabled = false;
+      const { error } = await client.from('expenses').insert([{
+        user_id: currentUser.id,
+        type: tipo,
+        description: desc,
+        category: cat || 'Geral',
+        amount: valor,
+        card_id: cardId
+      }]).select('*, cards(name)').single();
 
       if (error) {
-        showToast('Erro ao salvar no Supabase: ' + error.message, 'error');
-      } else if (data && data.length > 0) {
-        state.itens.unshift({
-          id: data[0].id,
-          tipo,
-          desc: data[0].description,
-          cat: data[0].category,
-          valor,
-          cartao: tipo === 'income' ? 'Renda' : cartaoNome
-        });
-        
+        showToast('Erro ao inserir: ' + error.message, 'error');
+      } else {
         byId('desc').value = '';
         byId('cat').value = '';
         byId('valor').value = '';
-        
-        render();
-        showToast('Lançamento salvo na nuvem com sucesso!');
+        showToast('Lançamento salvo com sucesso!');
+        loadDashboardData();
       }
-    }
+    });
 
-    async function removeItem(dbId, idx) {
+    async function deleteItem(id) {
       const client = getSupabaseClient();
-      if (client && currentUser) {
-        await client.from('expenses').delete().eq('id', dbId);
-      }
-      state.itens.splice(idx, 1);
-      render();
-      showToast('Lançamento removido.');
-    }
-
-    async function salvarRenda() {
-      const rendaVal = parseFloat(byId('renda').value);
-      if (isNaN(rendaVal) || rendaVal < 0) {
-        showToast('Informe um valor de renda válido.', 'error');
-        return;
-      }
-
-      state.renda = rendaVal;
-
-      const client = getSupabaseClient();
-      if (client && currentUser) {
-        await client
-          .from('profiles')
-          .upsert({ 
-            id: currentUser.id, 
-            email: currentUser.email, 
-            monthly_income: rendaVal 
-          });
-      }
-
-      render();
-      showToast('Renda fixa salva com sucesso!');
-    }
-
-    function exportCSV() {
-      if (state.itens.length === 0) {
-        showToast('Sem dados para exportar.', 'error');
-        return;
-      }
-
-      const headers = ['Tipo', 'Descricao', 'Categoria', 'Valor', 'Cartao'];
-      const lines = state.itens.map(i => [
-        `"${i.tipo}"`,
-        `"${(i.desc || '').replace(/"/g, '""')}"`,
-        `"${(i.cat || '').replace(/"/g, '""')}"`,
-        String(i.valor).replace('.', ','),
-        `"${(i.cartao || '').replace(/"/g, '""')}"`
-      ].join(';'));
-
-      const csv = [headers.join(';'), ...lines].join('\n');
-      const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `gastos-e-rendas-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Relatório CSV baixado!');
-    }
-
-    byId('add').addEventListener('click', addItem);
-    byId('salvar-renda').addEventListener('click', salvarRenda);
-    byId('export').addEventListener('click', exportCSV);
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(() => console.log('Service Worker registado!'))
-          .catch(err => console.log('Erro no Service Worker:', err));
-      });
-    }
-
-    initAuth();
-  </script>
-</body>
-</html>
+      if (!client || currentUser.id === 'local-demo-user' || String(id).startsWith('local-')) {
+        state.itens = state.itens.filter(i => i.id !== id);
+        showToast
