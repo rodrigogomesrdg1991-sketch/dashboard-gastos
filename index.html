@@ -570,4 +570,592 @@
     </div>
 
     <div class="card span-4 compact">
-      <div class="label">Renda Mensal (Fixa
+      <div class="label">Renda Mensal (Fixa)</div>
+      <div class="income-input">
+        <input type="number" id="renda" placeholder="Ex: 2500.00" min="0" step="0.01" inputmode="decimal">
+        <button class="btn primary" id="salvar-renda">Salvar</button>
+      </div>
+      <div class="hint">Salva automaticamente no seu perfil do Supabase.</div>
+    </div>
+
+    <div class="card span-4 compact">
+      <div class="label">Saldo do Mês (Total Receitas - Gastos)</div>
+      <div class="value" id="saldo">€ 0,00</div>
+      <div class="hint" id="saldo-hint">Defina sua renda para ver o saldo final.</div>
+    </div>
+
+    <div class="card span-12">
+      <div class="label" style="margin-bottom: 4px;">Novo Lançamento</div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="tipo-lancamento">Tipo</label>
+          <select id="tipo-lancamento">
+            <option value="expense">Despesa</option>
+            <option value="income">Renda / Entrada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="desc">Descrição</label>
+          <input id="desc" placeholder="Ex.: Supermercado / Salário Extra">
+        </div>
+        <div class="form-group">
+          <label for="cat">Categoria</label>
+          <input id="cat" placeholder="Ex.: Alimentação / Extra">
+        </div>
+        <div class="form-group">
+          <label for="valor">Valor (€)</label>
+          <input id="valor" type="number" step="0.01" min="0" inputmode="decimal" placeholder="0.00">
+        </div>
+        <div class="form-group" id="grupo-cartao">
+          <label for="cartao">Cartão</label>
+          <select id="cartao">
+            <option value="BBVA">BBVA</option>
+            <option value="Wise">Wise</option>
+            <option value="Mercado Pago">Mercado Pago</option>
+            <option value="Samsung Pay">Samsung Pay</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" id="add">+ Adicionar</button>
+          <button class="btn" id="export">Exportar CSV</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th class="right">Valor</th>
+              <th>Cartão / Tipo</th>
+              <th class="right">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display: none;">
+          Nenhum lançamento cadastrado até o momento.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Desenvolvido com Supabase PostgreSQL & Architecture MVP • Custo Zero de Operação
+  </footer>
+
+  <div class="modal-overlay active" id="auth-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-title">Acessar Conta</h2>
+        <p id="modal-desc">Insira seus dados para acessar suas finanças em nuvem.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tab-login">Entrar</button>
+        <button type="button" class="auth-tab" id="tab-signup">Criar Conta</button>
+      </div>
+
+      <!-- Botão de Login com Google -->
+      <button type="button" class="btn-google" id="btn-google-auth">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.15v3.14C3.13 21.32 7.21 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.62H1.15C.42 8.1 0 9.77 0 11.5s.42 3.4 1.15 4.88l4.12-3.14z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.21 0 3.13 2.68 1.15 6.62l4.12 3.14c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+        Continuar com o Google
+      </button>
+
+      <div class="divider">ou com e-mail e senha</div>
+      
+      <form class="modal-form" id="auth-form">
+        <div>
+          <label class="form-group" style="font-size: 12px; color: var(--muted);">E-mail</label>
+          <input type="email" id="auth-email" placeholder="seu@email.com" required style="margin-top: 4px;">
+        </div>
+        <div>
+          <label class="form-group" style="font-size: 12px; color: var(--muted);">Senha</label>
+          <input type="password" id="auth-password" placeholder="Sua senha secreta" required minlength="6" style="margin-top: 4px;">
+        </div>
+        <button type="submit" class="btn primary" id="btn-auth-submit" style="width: 100%; margin-top: 8px;">Entrar no Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Brasão Domingues Gomes interativo no canto inferior direito -->
+  <img src="brasao.png" alt="Brasão Domingues Gomes" id="brasao-toggle" class="brasao-pwa" title="Clique para alternar o tema">
+
+  <script>
+    // ==========================================
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = 'https://hpcrykdbxhonsrzgmnbr.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwY3J5a2RieGhvbnNyemdtbmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODg2MDcsImV4cCI6MjEwNjE2NDYwN30.Eryo931h8JkIQV0uG4TLOpUcTKjNQzDAcbUb2WGT15Y';
+
+    let supabaseClient = null;
+
+    function isSupabaseConfigured() {
+      return Boolean(SUPABASE_URL && SUPABASE_KEY);
+    }
+
+    function getSupabaseClient() {
+      if (supabaseClient) return supabaseClient;
+      if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
+
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        return supabaseClient;
+      } catch (err) {
+        console.error('Erro ao conectar com Supabase:', err);
+        return null;
+      }
+    }
+
+    const fmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+    const byId = id => document.getElementById(id);
+
+    let state = { renda: 0, itens: [] };
+    let currentUser = null;
+    let dbCards = [];
+    let authMode = 'login';
+
+    // Alternar Tema Escuro / Claro ao Clicar no Brasão
+    const brasaoBtn = byId('brasao-toggle');
+    const savedTheme = localStorage.getItem('theme_preference');
+    
+    if (savedTheme === 'light') {
+      document.body.classList.add('theme-light');
+      byId('theme-color-meta').setAttribute('content', '#f8fafc');
+    }
+
+    brasaoBtn.addEventListener('click', () => {
+      document.body.classList.toggle('theme-light');
+      const isLight = document.body.classList.contains('theme-light');
+      localStorage.setItem('theme_preference', isLight ? 'light' : 'dark');
+      byId('theme-color-meta').setAttribute('content', isLight ? '#f8fafc' : '#090d16');
+      showToast(isLight ? 'Tema Claro ativado!' : 'Tema Escuro ativado!');
+    });
+
+    byId('tipo-lancamento').addEventListener('change', (e) => {
+      const isIncome = e.target.value === 'income';
+      byId('grupo-cartao').style.display = isIncome ? 'none' : 'block';
+    });
+
+    function showToast(message, type = 'info') {
+      const container = byId('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.style.borderColor = type === 'error' ? 'var(--bad)' : 'var(--border)';
+      toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '✅'}</span> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ==========================================
+    // 2. AUTENTICAÇÃO E SESSÃO
+    // ==========================================
+    async function initAuth() {
+      const client = getSupabaseClient();
+      
+      if (!client) {
+        byId('demo-banner').style.display = 'block';
+        showAuthModal(true);
+        return;
+      }
+
+      try {
+        const { data, error } = await client.auth.getSession();
+        const session = data ? data.session : null;
+        
+        if (session) {
+          handleUserAuthenticated(session.user);
+        } else {
+          showAuthModal(true);
+        }
+
+        client.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_IN' && session) {
+            handleUserAuthenticated(session.user);
+          } else if (event === 'SIGNED_OUT') {
+            resetState();
+            showAuthModal(true);
+          }
+        });
+      } catch (e) {
+        console.error(e);
+        showAuthModal(true);
+      }
+    }
+
+    function resetState() {
+      currentUser = null;
+      dbCards = [];
+      state = { renda: 0, itens: [] };
+      byId('auth-status').style.display = 'none';
+      render();
+    }
+
+    function showAuthModal(show) {
+      byId('auth-modal').classList.toggle('active', show);
+    }
+
+    function handleUserAuthenticated(user) {
+      resetState();
+      currentUser = user;
+      byId('user-email-display').textContent = user.email || 'Usuário Sem E-mail';
+      byId('auth-status').style.display = 'flex';
+      showAuthModal(false);
+      loadDashboardData();
+    }
+
+    byId('tab-login').addEventListener('click', () => setAuthMode('login'));
+    byId('tab-signup').addEventListener('click', () => setAuthMode('signup'));
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      byId('tab-login').classList.toggle('active', mode === 'login');
+      byId('tab-signup').classList.toggle('active', mode === 'signup');
+      byId('modal-title').textContent = mode === 'login' ? 'Acessar Conta' : 'Criar Nova Conta';
+      byId('btn-auth-submit').textContent = mode === 'login' ? 'Entrar no Dashboard' : 'Cadastrar e Entrar';
+    }
+
+    // Ação de Login com Google OAuth
+    byId('btn-google-auth').addEventListener('click', async () => {
+      const client = getSupabaseClient();
+      if (!client) {
+        showToast('Modo local: Autenticação Google requer Supabase ativo.', 'error');
+        return;
+      }
+      const { error } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) {
+        showToast('Erro ao entrar com Google: ' + error.message, 'error');
+      }
+    });
+
+    byId('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = byId('auth-email').value.trim();
+      const password = byId('auth-password').value;
+      const btn = byId('btn-auth-submit');
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        showToast('Acesso efetuado em Modo Local Temporário.');
+        handleUserAuthenticated({ id: 'local-demo-user', email: email });
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Aguarde...';
+
+      if (authMode === 'login') {
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+        if (error) {
+          showToast('Erro ao entrar: ' + error.message, 'error');
+        } else {
+          showToast('Sessão iniciada!');
+          if (data.session) handleUserAuthenticated(data.user);
+        }
+      } else {
+        const { data, error } = await client.auth.signUp({ email, password });
+        if (error) {
+          showToast('Erro ao cadastrar: ' + error.message, 'error');
+        } else {
+          showToast('Conta criada com sucesso!');
+          if (data.session) handleUserAuthenticated(data.user);
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = authMode === 'login' ? 'Entrar no Dashboard' : 'Cadastrar e Entrar';
+    });
+
+    byId('btn-logout').addEventListener('click', async () => {
+      const client = getSupabaseClient();
+      if (client) await client.auth.signOut();
+      resetState();
+      showAuthModal(true);
+      showToast('Sessão encerrada.');
+    });
+
+    // ==========================================
+    // 3. CARREGAMENTO DOS DADOS DO BANCO
+    // ==========================================
+    async function loadDashboardData() {
+      const client = getSupabaseClient();
+      
+      if (!client || !currentUser) {
+        render();
+        return;
+      }
+
+      try {
+        const { data: profile } = await client
+          .from('profiles')
+          .select('monthly_income')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+        
+        state.renda = profile && profile.monthly_income ? parseFloat(profile.monthly_income) : 0;
+
+        let { data: cards } = await client
+          .from('cards')
+          .select('*')
+          .eq('user_id', currentUser.id);
+
+        if (!cards || cards.length === 0) {
+          const defaultCards = [
+            { user_id: currentUser.id, name: 'BBVA', color: '#004481' },
+            { user_id: currentUser.id, name: 'Wise', color: '#2E008B' },
+            { user_id: currentUser.id, name: 'Mercado Pago', color: '#00A9E0' },
+            { user_id: currentUser.id, name: 'Samsung Pay', color: '#1259E2' }
+          ];
+          const { data: createdCards } = await client.from('cards').insert(defaultCards).select();
+          cards = createdCards || [];
+        }
+
+        dbCards = cards;
+
+        const { data: expenses } = await client
+          .from('expenses')
+          .select('*, cards(name)')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+
+        state.itens = (expenses || []).map(e => ({
+          id: e.id,
+          tipo: e.type || 'expense',
+          desc: e.description,
+          cat: e.category,
+          valor: parseFloat(e.amount),
+          cartao: e.cards ? e.cards.name : 'Outro'
+        }));
+
+        render();
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+      }
+    }
+
+    // ==========================================
+    // 4. INTERFACE E RENDERIZAÇÃO
+    // ==========================================
+    function render() {
+      const tbody = byId('tbody');
+      const emptyState = byId('empty-state');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      let totBbva = 0, totWise = 0, totMp = 0, totSp = 0, totalGastos = 0, totalRendasExtras = 0;
+
+      if (emptyState) {
+        emptyState.style.display = state.itens.length === 0 ? 'block' : 'none';
+      }
+
+      state.itens.forEach((row) => {
+        const tr = document.createElement('tr');
+        const isIncome = row.tipo === 'income';
+        
+        const tdDesc = document.createElement('td'); 
+        tdDesc.textContent = row.desc || '-';
+        
+        const tdCat = document.createElement('td');
+        const spanCat = document.createElement('span');
+        spanCat.className = 'tag ' + (isIncome ? 'tag-income' : '');
+        spanCat.textContent = row.cat || '-';
+        tdCat.appendChild(spanCat);
+        
+        const tdVal = document.createElement('td');
+        tdVal.className = 'right';
+        tdVal.style.color = isIncome ? 'var(--ok)' : 'var(--text)';
+        tdVal.textContent = (isIncome ? '+ ' : '- ') + fmt.format(row.valor);
+        
+        const tdCard = document.createElement('td');
+        tdCard.textContent = isIncome ? 'Renda / Entrada' : row.cartao;
+        
+        const tdAction = document.createElement('td');
+        tdAction.className = 'right';
+        const btnDel = document.createElement('button');
+        btnDel.className = 'btn sm bad';
+        btnDel.textContent = 'Excluir';
+        btnDel.onclick = () => deleteItem(row.id);
+        tdAction.appendChild(btnDel);
+
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdVal);
+        tr.appendChild(tdCard);
+        tr.appendChild(tdAction);
+        tbody.appendChild(tr);
+
+        if (isIncome) {
+          totalRendasExtras += row.valor;
+        } else {
+          totalGastos += row.valor;
+          if (row.cartao === 'BBVA') totBbva += row.valor;
+          else if (row.cartao === 'Wise') totWise += row.valor;
+          else if (row.cartao === 'Mercado Pago') totMp += row.valor;
+          else if (row.cartao === 'Samsung Pay') totSp += row.valor;
+        }
+      });
+
+      if (byId('tot-bbva')) byId('tot-bbva').textContent = fmt.format(totBbva);
+      if (byId('tot-wise')) byId('tot-wise').textContent = fmt.format(totWise);
+      if (byId('tot-mp')) byId('tot-mp').textContent = fmt.format(totMp);
+      if (byId('tot-spay')) byId('tot-spay').textContent = fmt.format(totSp);
+      if (byId('tot-geral')) byId('tot-geral').textContent = fmt.format(totalGastos);
+      if (byId('qtd-itens')) byId('qtd-itens').textContent = `${state.itens.length} lançamento(s) registrado(s)`;
+
+      if (byId('renda')) byId('renda').value = state.renda > 0 ? state.renda : '';
+      
+      const saldoTotalReceitas = state.renda + totalRendasExtras;
+      const saldoFinal = saldoTotalReceitas - totalGastos;
+      const saldoEl = byId('saldo');
+      if (saldoEl) {
+        saldoEl.textContent = fmt.format(saldoFinal);
+        saldoEl.className = 'value ' + (saldoFinal >= 0 ? 'kpi-ok' : 'kpi-bad');
+      }
+      if (byId('saldo-hint')) {
+        byId('saldo-hint').textContent = `Receitas: ${fmt.format(saldoTotalReceitas)} | Gastos: ${fmt.format(totalGastos)}`;
+      }
+    }
+
+    if (byId('salvar-renda')) {
+      byId('salvar-renda').addEventListener('click', async () => {
+        const val = parseFloat(byId('renda').value) || 0;
+        state.renda = val;
+        const client = getSupabaseClient();
+        if (client && currentUser && currentUser.id !== 'local-demo-user') {
+          const { error } = await client.from('profiles').upsert({
+            id: currentUser.id,
+            monthly_income: val,
+            updated_at: new Date()
+          });
+          if (error) {
+            showToast('Erro ao salvar renda: ' + error.message, 'error');
+            return;
+          }
+        }
+        showToast('Renda mensal atualizada!');
+        render();
+      });
+    }
+
+    if (byId('add')) {
+      byId('add').addEventListener('click', async () => {
+        const tipo = byId('tipo-lancamento').value;
+        const desc = byId('desc').value.trim();
+        const cat = byId('cat').value.trim();
+        const valor = parseFloat(byId('valor').value);
+        const cartaoNome = byId('cartao').value;
+
+        if (!desc || isNaN(valor) || valor <= 0) {
+          showToast('Preencha a descrição e um valor válido.', 'error');
+          return;
+        }
+
+        const client = getSupabaseClient();
+        if (!client || !currentUser || currentUser.id === 'local-demo-user') {
+          state.itens.unshift({
+            id: 'local-' + Date.now(),
+            tipo,
+            desc,
+            cat: cat || 'Geral',
+            valor,
+            cartao: cartaoNome
+          });
+          byId('desc').value = '';
+          byId('cat').value = '';
+          byId('valor').value = '';
+          showToast('Lançamento adicionado (Local)!');
+          render();
+          return;
+        }
+
+        let cardId = null;
+        if (tipo === 'expense') {
+          const foundCard = dbCards.find(c => c.name === cartaoNome);
+          if (foundCard) {
+            cardId = foundCard.id;
+          } else if (dbCards.length > 0) {
+            cardId = dbCards[0].id;
+          }
+        }
+
+        const { error } = await client.from('expenses').insert([{
+          user_id: currentUser.id,
+          type: tipo,
+          description: desc,
+          category: cat || 'Geral',
+          amount: valor,
+          card_id: cardId
+        }]).select('*, cards(name)').single();
+
+        if (error) {
+          showToast('Erro ao inserir: ' + error.message, 'error');
+        } else {
+          byId('desc').value = '';
+          byId('cat').value = '';
+          byId('valor').value = '';
+          showToast('Lançamento salvo com sucesso!');
+          loadDashboardData();
+        }
+      });
+    }
+
+    async function deleteItem(id) {
+      const client = getSupabaseClient();
+      if (!client || currentUser.id === 'local-demo-user' || String(id).startsWith('local-')) {
+        state.itens = state.itens.filter(i => i.id !== id);
+        showToast('Lançamento removido.');
+        render();
+        return;
+      }
+
+      const { error } = await client.from('expenses').delete().eq('id', id);
+      if (error) {
+        showToast('Erro ao excluir: ' + error.message, 'error');
+      } else {
+        showToast('Lançamento excluído.');
+        loadDashboardData();
+      }
+    }
+
+    if (byId('export')) {
+      byId('export').addEventListener('click', () => {
+        if (state.itens.length === 0) {
+          showToast('Nenhum dado para exportar.', 'error');
+          return;
+        }
+        let csv = 'Descricao,Categoria,Valor,Tipo,Cartao\n';
+        state.itens.forEach(i => {
+          csv += `"${i.desc}","${i.cat}",${i.valor},"${i.tipo}","${i.cartao || ''}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gastos_dashboard.csv';
+        a.click();
+        showToast('Relatório CSV exportado!');
+      });
+    }
+
+    // Inicializar app ao carregar a página com segurança
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        initAuth();
+      } catch (err) {
+        console.error('Erro na inicialização:', err);
+        showAuthModal(true);
+      }
+    });
+  </script>
+</body>
+</html>
